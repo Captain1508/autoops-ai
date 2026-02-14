@@ -1,0 +1,40 @@
+[
+  {
+    "timestamp": "2026-02-13T10:29:45Z",
+    "level": "INFO",
+    "service": "payment-api",
+    "message": "Processing payment for order #12345"
+  },
+  {
+    "timestamp": "2026-02-13T10:29:50Z",
+    "level": "INFO",
+    "service": "payment-api",
+    "message": "Payment processed successfully"
+  },
+  {
+    "timestamp": "2026-02-13T10:30:00Z",
+    "level": "ERROR",
+    "service": "payment-api",
+    "message": "Database connection pool exhausted. Max connections: 10, active: 10",
+    "stackTrace": "at ConnectionPool.acquire (db-pool.js:45)"
+  },
+  {
+    "timestamp": "2026-02-13T10:30:05Z",
+    "level": "ERROR",
+    "service": "payment-api",
+    "message": "Database connection pool exhausted. Max connections: 10, active: 10",
+    "stackTrace": "at ConnectionPool.acquire (db-pool.js:45)"
+  },
+  {
+    "timestamp": "2026-02-13T10:30:10Z",
+    "level": "ERROR",
+    "service": "payment-api",
+    "message": "Request timeout after 30000ms"
+  },
+  {
+    "timestamp": "2026-02-13T10:30:15Z",
+    "level": "ERROR",
+    "service": "payment-api",
+    "message": "Database connection pool exhausted. Max connections: 10, active: 10"
+  }
+]

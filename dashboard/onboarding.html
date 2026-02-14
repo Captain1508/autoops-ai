@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AutoOps AI - Integration Guide</title>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0B0E11;
+      color: #E4E7EB;
+      padding: 40px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    h1 { color: #6366F1; }
+    h2 { color: #8B5CF6; margin-top: 30px; }
+    pre {
+      background: #13171D;
+      padding: 15px;
+      border-radius: 8px;
+      border: 1px solid #1F2937;
+      overflow-x: auto;
+    }
+    code { color: #10B981; }
+    .step {
+      background: #13171D;
+      padding: 20px;
+      margin: 15px 0;
+      border-radius: 12px;
+      border-left: 4px solid #6366F1;
+    }
+  </style>
+</head>
+<body>
+  <h1>🚀 AutoOps AI - Integration Guide</h1>
+  
+  <h2>How to Integrate AutoOps AI into Your Production Environment</h2>
+  
+  <div class="step">
+    <h3>1️⃣ Install Dependencies</h3>
+    <pre><code>npm install @anthropic-ai/sdk @octokit/rest axios dotenv express chokidar</code></pre>
+  </div>
+  
+  <div class="step">
+    <h3>2️⃣ Configure Environment Variables</h3>
+    <pre><code>ANTHROPIC_API_KEY=your_claude_api_key
+GITHUB_TOKEN=your_github_pat
+GITHUB_REPO_OWNER=your_username
+GITHUB_REPO_NAME=your_repo
+SLACK_WEBHOOK_URL=your_slack_webhook</code></pre>
+  </div>
+  
+  <div class="step">
+    <h3>3️⃣ Point to Your Log Source</h3>
+    <p>Option A: File-based logs</p>
+    <pre><code>// Watch your application logs
+const logs = await fs.readFile('/var/log/myapp/error.log');</code></pre>
+    
+    <p>Option B: Logging service integration</p>
+    <pre><code>// Connect to Datadog, Splunk, etc.
+const logs = await datadog.getLogs({ since: '1h' });</code></pre>
+  </div>
+  
+  <div class="step">
+    <h3>4️⃣ Start Monitoring</h3>
+    <pre><code>node server.js    # Terminal 1
+node auto-monitor.js    # Terminal 2</code></pre>
+  </div>
+  
+  <div class="step">
+    <h3>5️⃣ Production Deployment</h3>
+    <p><strong>Using Docker:</strong></p>
+    <pre><code>docker build -t autoops-ai .
+docker run -d -p 3000:3000 --env-file .env autoops-ai</code></pre>
+    
+    <p><strong>Using PM2:</strong></p>
+    <pre><code>pm2 start server.js --name autoops-server
+pm2 start auto-monitor.js --name autoops-monitor</code></pre>
+  </div>
+  
+  <h2>📊 Supported Integrations</h2>
+  <ul>
+    <li>✅ GitHub (Auto PR creation)</li>
+    <li>✅ Slack (Real-time notifications)</li>
+    <li>✅ Any log file or service</li>
+    <li>🔄 Datadog, Splunk, CloudWatch (coming soon)</li>
+    <li>🔄 PagerDuty, Sentry (coming soon)</li>
+  </ul>
+  
+  <h2>🔒 Security Best Practices</h2>
+  <ul>
+    <li>Never commit .env file to Git</li>
+    <li>Use environment-specific API keys</li>
+    <li>Enable security scanning on all generated fixes</li>
+    <li>Review PRs before merging to production</li>
+  </ul>
+</body>
+</html>

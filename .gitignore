@@ -1,0 +1,7 @@
+node modules/
+.env
+data/incident-*.json
+data/monitor-status.json
+data/analysis-report.json
+*.log
+.DS_Store

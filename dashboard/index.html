@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AutoOps AI - Enterprise DevOps Platform</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #0B0E11;
+      color: #E4E7EB;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 80px;
+      height: 100vh;
+      background: #13171D;
+      border-right: 1px solid #1F2937;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 25px 0;
+      z-index: 100;
+    }
+
+    .logo {
+      width: 45px;
+      height: 45px;
+      background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      margin-bottom: 50px;
+      box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
+    }
+
+    .nav-item {
+      width: 55px;
+      height: 55px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 8px 0;
+      cursor: pointer;
+      border-radius: 12px;
+      transition: all 0.3s;
+      position: relative;
+    }
+
+    .nav-item:hover {
+      background: rgba(99, 102, 241, 0.1);
+    }
+
+    .nav-item.active {
+      background: rgba(99, 102, 241, 0.15);
+    }
+
+    .nav-item.active::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      width: 3px;
+      height: 25px;
+      background: #6366F1;
+      border-radius: 0 3px 3px 0;
+    }
+
+    .nav-icon {
+      font-size: 22px;
+      margin-bottom: 4px;
+    }
+
+    .nav-label {
+      font-size: 9px;
+      color: #6B7280;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .nav-item.active .nav-label {
+      color: #6366F1;
+    }
+
+    /* Main Content */
+    .main-content {
+      margin-left: 80px;
+    }
+
+    /* Top Bar */
+    .top-bar {
+      height: 70px;
+      background: #13171D;
+      border-bottom: 1px solid #1F2937;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 35px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .top-bar-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.5px;
+    }
+
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 22px;
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: 13px;
+      transition: all 0.3s;
+    }
+
+    .status-badge.healthy {
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      color: #10B981;
+    }
+
+    .status-badge.incident {
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.25);
+      color: #EF4444;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      animation: pulse-dot 2s infinite;
+    }
+
+    .status-badge.healthy .status-dot {
+      background: #10B981;
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+    }
+
+    .status-badge.incident .status-dot {
+      background: #EF4444;
+      box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+      animation: pulse-dot 1s infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.7; transform: scale(0.95); }
+    }
+
+    .icon-btn {
+      width: 38px;
+      height: 38px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid #1F2937;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 18px;
+      transition: all 0.3s;
+    }
+
+    .icon-btn:hover {
+      background: rgba(99, 102, 241, 0.1);
+      border-color: rgba(99, 102, 241, 0.3);
+    }
+
+    /* Content */
+    .content {
+      padding: 30px 35px;
+      max-width: 1800px;
+    }
+
+    /* Pipeline Card */
+    .pipeline-card {
+      background: #13171D;
+      border: 1px solid #1F2937;
+      border-radius: 16px;
+      padding: 28px;
+      margin-bottom: 25px;
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 25px;
+      letter-spacing: -0.3px;
+    }
+
+    .pipeline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 25px;
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: 14px;
+      position: relative;
+    }
+
+    .pipeline::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 60px;
+      right: 60px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.3), transparent);
+    }
+
+    .pipeline-node {
+      flex: 1;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .node-circle {
+      width: 70px;
+      height: 70px;
+      margin: 0 auto 12px;
+      background: linear-gradient(135deg, #1F2937, #13171D);
+      border: 2px solid #1F2937;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .pipeline-node.active .node-circle {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(139, 92, 246, 0.25));
+      border-color: #6366F1;
+      box-shadow: 0 0 25px rgba(99, 102, 241, 0.4), 0 0 50px rgba(99, 102, 241, 0.2);
+      transform: scale(1.08);
+      animation: node-pulse 2s infinite;
+    }
+
+    @keyframes node-pulse {
+      0%, 100% { box-shadow: 0 0 25px rgba(99, 102, 241, 0.4); }
+      50% { box-shadow: 0 0 35px rgba(99, 102, 241, 0.6); }
+    }
+
+    .node-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #6B7280;
+      letter-spacing: 0.3px;
+    }
+
+    .pipeline-node.active .node-label {
+      color: #6366F1;
+    }
+
+    /* Grid */
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 25px;
+      margin-bottom: 25px;
+    }
+
+    .card {
+      background: #13171D;
+      border: 1px solid #1F2937;
+      border-radius: 16px;
+      padding: 28px;
+      transition: all 0.3s;
+    }
+
+    .card:hover {
+      border-color: rgba(99, 102, 241, 0.25);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 22px;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.3px;
+    }
+
+    .badge {
+      padding: 5px 14px;
+      background: rgba(99, 102, 241, 0.12);
+      border: 1px solid rgba(99, 102, 241, 0.25);
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #6366F1;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Terminal */
+    .terminal {
+      background: #000;
+      border-radius: 10px;
+      padding: 18px;
+      font-family: 'Monaco', 'Courier New', monospace;
+      font-size: 12px;
+      line-height: 1.7;
+      max-height: 380px;
+      overflow-y: auto;
+      border: 1px solid #1F2937;
+    }
+
+    .terminal::-webkit-scrollbar { width: 6px; }
+    .terminal::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.3); }
+    .terminal::-webkit-scrollbar-thumb { background: #6366F1; border-radius: 3px; }
+
+    .terminal-header {
+      color: #10B981;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .terminal-error { color: #EF4444; }
+    .terminal-success { color: #10B981; }
+    .terminal-info { color: #60A5FA; }
+    .terminal-warn { color: #F59E0B; }
+
+    /* Metrics */
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+    }
+
+    .metric {
+      padding: 18px;
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: 12px;
+      border: 1px solid rgba(99, 102, 241, 0.08);
+      text-align: center;
+      transition: all 0.3s;
+    }
+
+    .metric:hover {
+      background: rgba(99, 102, 241, 0.05);
+      border-color: rgba(99, 102, 241, 0.2);
+    }
+
+    .metric-value {
+      font-size: 28px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 6px;
+      letter-spacing: -0.5px;
+    }
+
+    .metric-label {
+      font-size: 11px;
+      color: #6B7280;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      font-weight: 600;
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 50px 20px;
+    }
+
+    .empty-icon {
+      font-size: 42px;
+      margin-bottom: 12px;
+      opacity: 0.25;
+    }
+
+    .empty-text {
+      font-size: 13px;
+      color: #6B7280;
+      line-height: 1.6;
+    }
+
+    /* History */
+    .history-list {
+      max-height: 380px;
+      overflow-y: auto;
+    }
+
+    .history-item {
+      padding: 16px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 10px;
+      border-left: 3px solid #6366F1;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .history-item:hover {
+      background: rgba(99, 102, 241, 0.08);
+      transform: translateX(4px);
+    }
+
+    .history-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .severity {
+      padding: 4px 11px;
+      border-radius: 6px;
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .severity-critical {
+      background: rgba(239, 68, 68, 0.15);
+      color: #EF4444;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .severity-high {
+      background: rgba(251, 191, 36, 0.15);
+      color: #F59E0B;
+      border: 1px solid rgba(251, 191, 36, 0.3);
+    }
+
+    .history-time {
+      font-size: 11px;
+      color: #6B7280;
+    }
+
+    .history-title {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #E4E7EB;
+    }
+
+    .history-meta {
+      font-size: 11px;
+      color: #6B7280;
+      display: flex;
+      gap: 15px;
+    }
+
+    /* PR List */
+    .pr-item {
+      padding: 16px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 10px;
+      border: 1px solid #1F2937;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .pr-item:hover {
+      border-color: #6366F1;
+      background: rgba(99, 102, 241, 0.05);
+    }
+
+    .pr-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .pr-number {
+      font-weight: 700;
+      color: #6366F1;
+      font-size: 13px;
+    }
+
+    .pr-status {
+      padding: 4px 11px;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: 700;
+      color: #10B981;
+      text-transform: uppercase;
+    }
+
+    .pr-title {
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: #E4E7EB;
+    }
+
+    .pr-meta {
+      font-size: 11px;
+      color: #6B7280;
+    }
+
+    /* Button */
+    .btn {
+      padding: 11px 22px;
+      background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.3s;
+      width: 100%;
+      letter-spacing: 0.3px;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(99, 102, 241, 0.35);
+    }
+
+    /* Notifications */
+    .notif-item {
+      padding: 14px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 10px;
+      border-left: 3px solid #10B981;
+      margin-bottom: 10px;
+    }
+
+    .notif-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .notif-icon { font-size: 18px; }
+
+    .notif-title {
+      font-weight: 600;
+      font-size: 12px;
+      color: #E4E7EB;
+    }
+
+    .notif-body {
+      font-size: 11px;
+      color: #9CA3AF;
+      line-height: 1.6;
+      margin-bottom: 6px;
+    }
+
+    .notif-time {
+      font-size: 10px;
+      color: #6B7280;
+    }
+
+    /* Welcome State */
+    .welcome {
+      text-align: center;
+      padding: 60px 30px;
+    }
+
+    .welcome-icon {
+      font-size: 72px;
+      margin-bottom: 20px;
+      opacity: 0.4;
+    }
+
+    .welcome-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 12px;
+    }
+
+    .welcome-text {
+      font-size: 14px;
+      color: #9CA3AF;
+      line-height: 1.8;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="logo">🤖</div>
+    <div class="nav-item active">
+      <div class="nav-icon">📊</div>
+      <div class="nav-label">Dashboard</div>
+    </div>
+    <div class="nav-item">
+      <div class="nav-icon">📜</div>
+      <div class="nav-label">Incidents</div>
+    </div>
+    <div class="nav-item">
+      <div class="nav-icon">📝</div>
+      <div class="nav-label">PRs</div>
+    </div>
+    <div class="nav-item">
+      <div class="nav-icon">💬</div>
+      <div class="nav-label">Slack</div>
+    </div>
+    <div class="nav-item" style="margin-top: auto;">
+      <div class="nav-icon">⚙️</div>
+      <div class="nav-label">Settings</div>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div class="main-content">
+    <!-- Top Bar -->
+    <div class="top-bar">
+      <div class="top-bar-title">AutoOps AI</div>
+      <div class="status-badge healthy" id="status-badge">
+        <div class="status-dot"></div>
+        <span>System Healthy</span>
+      </div>
+      <div style="display: flex; gap: 12px;">
+        <div class="icon-btn">🔍</div>
+        <div class="icon-btn">🔔</div>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+      <!-- Pipeline -->
+      <div class="pipeline-card">
+        <div class="section-title">Multi-Agent Orchestration Pipeline</div>
+        <div class="pipeline">
+          <div class="pipeline-node" id="node-1">
+            <div class="node-circle">🔍</div>
+            <div class="node-label">Monitor</div>
+          </div>
+          <div class="pipeline-node" id="node-2">
+            <div class="node-circle">📊</div>
+            <div class="node-label">Analyze</div>
+          </div>
+          <div class="pipeline-node" id="node-3">
+            <div class="node-circle">🧠</div>
+            <div class="node-label">Diagnose</div>
+          </div>
+          <div class="pipeline-node" id="node-4">
+            <div class="node-circle">🔧</div>
+            <div class="node-label">Generate Fix</div>
+          </div>
+          <div class="pipeline-node" id="node-5">
+            <div class="node-circle">📝</div>
+            <div class="node-label">Create PR</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Grid -->
+      <div class="grid">
+        <!-- Left: Incident or Welcome -->
+        <div class="card" id="main-card">
+          <div class="card-header">
+            <div class="card-title">System Status</div>
+          </div>
+          <div id="main-content">
+            <div class="welcome">
+              <div class="welcome-icon">🛡️</div>
+              <div class="welcome-title">All Systems Operational</div>
+              <div class="welcome-text">
+                AutoOps AI is actively monitoring your production environment.<br>
+                You'll be alerted immediately if any issues are detected.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Metrics -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">System Metrics</div>
+          </div>
+          <div class="metrics">
+            <div class="metric">
+              <div class="metric-value" id="metric-cost">$0.00</div>
+              <div class="metric-label">Total Cost</div>
+            </div>
+            <div class="metric">
+              <div class="metric-value" id="metric-tokens">0</div>
+              <div class="metric-label">Tokens</div>
+            </div>
+            <div class="metric">
+              <div class="metric-value" id="metric-agents">5/5</div>
+              <div class="metric-label">Agents</div>
+            </div>
+            <div class="metric">
+              <div class="metric-value" id="metric-incidents">0</div>
+              <div class="metric-label">Incidents</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Grid -->
+      <div class="grid">
+        <!-- History -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Recent Incidents</div>
+          </div>
+          <div class="history-list" id="history">
+            <div class="empty-state">
+              <div class="empty-icon">📜</div>
+              <div class="empty-text">No incidents yet</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PRs -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Auto-Generated PRs</div>
+          </div>
+          <div id="pr-list">
+            <div class="empty-state">
+              <div class="empty-icon">📝</div>
+              <div class="empty-text">No PRs yet</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slack Notifications -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Slack Notifications</div>
+          <div class="badge">LIVE</div>
+        </div>
+        <div id="slack-notifs">
+          <div class="empty-state">
+            <div class="empty-icon">💬</div>
+            <div class="empty-text">No notifications yet</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
