@@ -25,7 +25,7 @@ const server = new Server(
  * AGENT: Log Analyzer
  * Purpose: Identifies patterns and root causes from error logs.
  */
-const analyzeLogs = async (errorMessage: string) => {
+export const analyzeLogs = async (errorMessage: string) => {
     // Real world: This would call an LLM with RAG on incident docs
     const patterns = [
         { regex: /connection pool exhausted/i, cause: "Database connection leak in the connection manager." },
@@ -42,7 +42,7 @@ const analyzeLogs = async (errorMessage: string) => {
  * AGENT: Fix Generator
  * Purpose: Synthesizes a patch for the identified root cause.
  */
-const generateFix = async (rootCause: string) => {
+export const generateFix = async (rootCause: string) => {
     return `Synthesized automated fix for: ${rootCause}\n\nActions taken:\n1. Implemented circuit breaker pattern\n2. Optimzed resource cleanup hooks\n3. Updated k8s liveness probes.`;
 };
 
@@ -50,7 +50,7 @@ const generateFix = async (rootCause: string) => {
  * AGENT: PR Creator
  * Purpose: Creates a real GitHub PR using the synthesized fix.
  */
-const createGitHubPR = async (fix: string, errorContext: string) => {
+export const createGitHubPR = async (fix: string, errorContext: string) => {
     const token = process.env.NEXT_PUBLIC_GITHUB_TOKEN;
     const owner = process.env.NEXT_PUBLIC_GITHUB_OWNER;
     const repo = process.env.NEXT_PUBLIC_GITHUB_REPO;
@@ -106,7 +106,23 @@ const createGitHubPR = async (fix: string, errorContext: string) => {
     }
 };
 
-// --- MCP Server Implementation ---
+/**
+ * Direct Request Handler for Serverless / Direct Imports
+ */
+export const handleMcpToolCall = async (name: string, args: any) => {
+    switch (name) {
+        case "analyze_log":
+            return await analyzeLogs(args?.errorMessage as string);
+        case "generate_fix":
+            return await generateFix(args?.rootCause as string);
+        case "create_pull_request":
+            return await createGitHubPR(args?.fix as string, args?.errorContext as string);
+        default:
+            throw new Error(`Tool not found: ${name}`);
+    }
+}
+
+// --- MCP Server Implementation (For CLI/Stdio usage) ---
 
 server.setRequestHandler(ListToolsRequestSchema, async () => ({
     tools: [
@@ -151,22 +167,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     const { name, arguments: args } = request.params;
 
     try {
-        switch (name) {
-            case "analyze_log":
-                const rootCause = await analyzeLogs(args?.errorMessage as string);
-                return { content: [{ type: "text", text: rootCause }] };
-
-            case "generate_fix":
-                const fix = await generateFix(args?.rootCause as string);
-                return { content: [{ type: "text", text: fix }] };
-
-            case "create_pull_request":
-                const prUrl = await createGitHubPR(args?.fix as string, args?.errorContext as string);
-                return { content: [{ type: "text", text: prUrl }] };
-
-            default:
-                throw new Error(`Tool not found: ${name}`);
-        }
+        const result = await handleMcpToolCall(name, args);
+        return { content: [{ type: "text", text: result }] };
     } catch (error: any) {
         return {
             isError: true,
@@ -181,4 +183,8 @@ async function runServer() {
     console.error("AutoOps MCP Server running on stdio");
 }
 
-runServer().catch(console.error);
+// Only run server if this file is executed directly
+if (import.meta.url === `file://${process.argv[1]}` || process.env.RUN_MCP === 'true') {
+    runServer().catch(console.error);
+}
+
