@@ -1,0 +1,63 @@
+{
+    "project": {
+        "name": "AutoOps AI",
+        "description": "Autonomous Self-Healing DevOps System"
+    },
+    "agents": [
+        {
+            "id": "log-analyzer",
+            "name": "Log Analyzer",
+            "role": "Analysis",
+            "description": "Identifies root causes from system logs",
+            "mcpServers": [
+                "autoops-mcp-server"
+            ],
+            "tools": [
+                "analyze_log"
+            ]
+        },
+        {
+            "id": "fix-generator",
+            "name": "Fix Generator",
+            "role": "Engineering",
+            "description": "Synthesizes automated patches",
+            "mcpServers": [
+                "autoops-mcp-server"
+            ],
+            "tools": [
+                "generate_fix"
+            ]
+        },
+        {
+            "id": "pr-agent",
+            "name": "PR Agent",
+            "role": "C.I./C.D.",
+            "description": "Manages GitHub workflows and PR creation",
+            "mcpServers": [
+                "autoops-mcp-server"
+            ],
+            "tools": [
+                "create_pull_request"
+            ],
+            "guardrails": {
+                "allowedRepositories": [
+                    "Captain1508/autoops-ai"
+                ],
+                "maxPrsPerHour": 10
+            }
+        }
+    ],
+    "orchestration": {
+        "type": "sequential",
+        "workflow": [
+            "log-analyzer",
+            "fix-generator",
+            "pr-agent"
+        ]
+    },
+    "observability": {
+        "enabled": true,
+        "logLevel": "debug",
+        "trackReasoning": true
+    }
+}
