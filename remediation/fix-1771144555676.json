@@ -1,0 +1,5 @@
+{
+  "fix": "Synthesized automated fix for: Service unavailable due to horizontal pod autoscaling failure.\n\nActions taken:\n1. Implemented circuit breaker pattern\n2. Optimzed resource cleanup hooks\n3. Updated k8s liveness probes.",
+  "context": "ERROR: API Gateway returning 503 - Service Unavailable",
+  "agent": "Archestra-MCP-Worker"
+}
